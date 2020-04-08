@@ -38,7 +38,6 @@ class UsersRouter {
   }
 
   static async update(ctx) {
-    console.log(ctx)
     try {
       const group = await UserModel.findByIdAndUpdate(ctx.params.id, ctx.request.body, {new: true});
       if (!group) {
