@@ -28,12 +28,13 @@ const onDBReady = (err) => {
   //   }
   //   console.log('Koa server listening in port 3000');
   // });
-  app.listen(process.env.PORT || 3000, function (err) {
+  const port = process.env.PORT ? process.env.PORT : 3000;
+  app.listen(port, function (err) {
     if (err) {
-      console.error(`Error listening in port ${process.env.PORT}`, err);
+      console.error(`Error listening in port ${port}`, err);
       process.exit(1);
     }
-    console.log(`Koa server listening in port ${process.env.PORT}`);
+    console.log(`Koa server listening in port ${port}`);
   });
 }
 
