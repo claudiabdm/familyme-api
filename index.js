@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const mount = require('koa-mount');
 const cors = require('@koa/cors');
 
-const mongoUri = 'mongodb://localhost:27017/familyapp';
+const mongoUri = process.env.MONGODB_PROD;
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
 
