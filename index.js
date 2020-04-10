@@ -34,6 +34,7 @@ const onDBReady = (err) => {
       process.exit(1);
     }
     console.log('Koa server listening in port 3000');
+    console.log(process.env.PORT)
   });
 }
 
