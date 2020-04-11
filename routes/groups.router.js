@@ -30,7 +30,16 @@ class GroupsRouter {
   static async create(ctx) {
     try {
       const newGroup = new GroupModel(ctx.request.body);
-      ctx.body = await findUniqueFamilyCode(newGroup.familyCode, newGroup, ctx);
+      await GroupModel.distinct('familyCode', (err, res) => {
+        while (res.includes(newGroup.familyCode)) {
+          const charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          for (let i=0; i < 15; i++) { 
+            familyCode.push(charset.charAt(Math.floor(Math.random()*charset.length))); 
+          }
+          newGroup.familyCode = familyCode;
+        }
+      })
+      ctx.body = await newGroup.save();
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = `${ctx.status}: ${err.message}`;
@@ -67,19 +76,6 @@ class GroupsRouter {
       ctx.body = `${ctx.status}: ${err.message}`;
     }
   }
-}
-
-const findUniqueFamilyCode = async (familyCode, newGroup, ctx) => {
-  await GroupModel.findOne({
-    familyCode: familyCode
-  }, (err, arr) => {
-    if (!arr) {
-      return newGroup.save();
-    } else {
-      newGroup.familyCode = Math.random().toString(36).slice(2);
-      return findUniqueFamilyCode(newGroup.familyCode, newGroup, ctx)
-    }
-  })
 }
 
 

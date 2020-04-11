@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const EventModel = require('./event.model');
+const ProductModel = require('./product.model');
 
 const Group = new Schema({
   familyCode: {
@@ -20,7 +21,9 @@ const Group = new Schema({
     required: true,
   },
   shoppingList: {
-    type: Array,
+    type: [ProductModel.schema],
+    required: false,
+    default: []
   },
   events: {
     type: [EventModel.schema],

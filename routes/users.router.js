@@ -30,7 +30,7 @@ class UsersRouter {
   static async create(ctx) {
     try {
       const newUser = new UserModel(ctx.request.body);
-      ctx.body = newUser.save();
+      ctx.body = await newUser.save();
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = `${ctx.status}: ${err.message}`;
