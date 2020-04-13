@@ -19,7 +19,7 @@ const User = new Schema({
     trim: true
   },
   avatar: {
-    type: String | ArrayBuffer,
+    type: String || ArrayBuffer,
     required: false,
     default: ''
     },
