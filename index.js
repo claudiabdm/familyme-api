@@ -15,14 +15,29 @@ const onDBReady = (err) => {
   };
 
   const app = new Koa();
+
   app.use(body());
   app.use(cors())
 
+  
   app.use(mount('/api/v1', groupsRouter.routes()));
   app.use(mount('/api/v1', usersRouter.routes()));
-
+  
+  
+  const server = require('http').createServer(app.callback());
+  const io = require('socket.io')(server);
+  
+  io.on('connection', (socket) => {
+    socket.on('disconnect', () => {
+    });
+    socket.on('new-message', (msg) => {
+      io.emit('new-message', msg);
+    });
+  });
+  
   const port = process.env.PORT ? process.env.PORT : 3000;
-  app.listen(port, function (err) {
+  
+  server.listen(port, function (err) {
     if (err) {
       console.error(`Error listening in port ${port}`, err);
       process.exit(1);
