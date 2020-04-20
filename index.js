@@ -35,9 +35,7 @@ const onDBReady = (err) => {
     });
   });
   
-  const port = process.env.PORT ? process.env.PORT : 3000;
-  
-  server.listen(port, function (err) {
+  server.listen(process.env.PORT || 3000, function (err) {
     if (err) {
       console.error(`Error listening in port ${port}`, err);
       process.exit(1);
