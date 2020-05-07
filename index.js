@@ -3,10 +3,18 @@ const body = require('koa-body');
 const mongoose = require('mongoose');
 const mount = require('koa-mount');
 const cors = require('@koa/cors');
+const validate = require('koa-validate');
+const passport = require('koa-passport');
+const convert = require('koa-convert');
+const session = require('koa-generic-session');
+const File = require('koa-generic-session-file');
+const jwt = require('koa-jwt');
 
-const mongoUri = process.env.MONGODB_PROD;
+const mongoUri = 'mongodb+srv://dbUser:PpCd3R5J09wOTYhJ@cluster0-fieon.mongodb.net/familymeapp?retryWrites=true&w=majority';
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
+const authRouter = require('./routes/auth.router');
+
 
 const onDBReady = (err) => {
   if (err) {
@@ -17,25 +25,62 @@ const onDBReady = (err) => {
   const app = new Koa();
 
   app.use(body());
-  app.use(cors())
+  app.use(cors());
+  validate(app);
+
+  app.keys = ['1234'];
+  app.use(session(app));
+
+
+  //  auth
+  require('./services/auth.service');
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   
+  app.use(authRouter.routes());
+
+  app.use(jwt({
+    secret: '1234',
+    passthrough: true
+  }));
+
+  app.use(async (ctx, next) => {
+    console.log('User', ctx.state.user);
+    if (ctx.state.user) {
+      ctx.login(ctx.state.user);
+    }
+    await next();
+  });
+
+  app.use(async (ctx, next) => {
+    if (!ctx.isAuthenticated()) {
+      ctx.redirect('/auth/login');
+      return;
+    }
+    await next();
+  });
+
+
+  // routes
   app.use(mount('/api/v1', groupsRouter.routes()));
   app.use(mount('/api/v1', usersRouter.routes()));
-  
-  
+
+
+  // socket io
   const server = require('http').createServer(app.callback());
   const io = require('socket.io')(server);
-  
+
   io.on('connection', (socket) => {
-    socket.on('disconnect', () => {
-    });
+    socket.on('disconnect', () => {});
     socket.on('new-message', (msg) => {
       io.emit('new-message', msg);
     });
   });
-  
-  server.listen(process.env.PORT || 3000, function (err) {
+
+
+  // server listener
+  server.listen(process.env.PORT || 3000, function (err) {
     if (err) {
       console.error(`Error listening in port ${ process.env.PORT || 3000}`, err);
       process.exit(1);

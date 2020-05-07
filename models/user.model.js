@@ -18,6 +18,9 @@ const User = new Schema({
     required: true,
     trim: true
   },
+  salt: {
+    type: String,
+  },
   avatar: {
     type: String || ArrayBuffer,
     required: false,
