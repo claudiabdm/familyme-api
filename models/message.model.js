@@ -1,32 +1,24 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-const UserModel = require('./user.model');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 const Message = new Schema({
+  groupId: {
+    type: ObjectId,
+    required: true
+  },
   addedBy: {
     type: String,
     required: true
   },
   userId: {
-    type: String,
+    type: ObjectId,
     required: true
-  },
-  userAvatar: {
-    type: String || ArrayBuffer,
-    required: false,
-    default: ''
   },
   text: {
     type: String,
     required: true,
-  },
-  read: {
-    type: Boolean,
-    required: true,
-    default: false,
   }
- 
-},  {timestamps: true})
+},  {timestamps: {createdAt: true, updatedAt: false}})
 
 module.exports = mongoose.model('Message', Message);

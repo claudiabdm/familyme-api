@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const EventModel = require('./event.model');
 const ProductModel = require('./product.model');
+const MessageModel = require('./message.model');
 
 const Group = new Schema({
   familyCode: {
@@ -27,6 +28,11 @@ const Group = new Schema({
   },
   events: {
     type: [EventModel.schema],
+    required: false,
+    default: []
+  },
+  conversation: {
+    type: [MessageModel.schema],
     required: false,
     default: []
   }

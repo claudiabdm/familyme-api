@@ -1,19 +1,19 @@
 const Koa = require('koa');
-const body = require('koa-body');
+const body = require('koa-bodyparser');
 const mongoose = require('mongoose');
 const mount = require('koa-mount');
 const cors = require('@koa/cors');
 const validate = require('koa-validate');
 const passport = require('koa-passport');
-const convert = require('koa-convert');
 const session = require('koa-generic-session');
-const File = require('koa-generic-session-file');
 const jwt = require('koa-jwt');
 
-const mongoUri = 'mongodb+srv://dbUser:PpCd3R5J09wOTYhJ@cluster0-fieon.mongodb.net/familymeapp?retryWrites=true&w=majority';
+const mongoUri = '';
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
 const authRouter = require('./routes/auth.router');
+const messagesRouter = require('./routes/messages.router');
+const MessageModel = require('./models/message.model');
 
 
 const onDBReady = (err) => {
@@ -33,38 +33,39 @@ const onDBReady = (err) => {
 
 
   //  auth
-  require('./services/auth.service');
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // require('./services/auth.service');
+  // app.use(passport.initialize());
+  // app.use(passport.session());
 
-  
-  app.use(authRouter.routes());
 
-  app.use(jwt({
-    secret: '1234',
-    passthrough: true
-  }));
+  // app.use(authRouter.routes());
 
-  app.use(async (ctx, next) => {
-    console.log('User', ctx.state.user);
-    if (ctx.state.user) {
-      ctx.login(ctx.state.user);
-    }
-    await next();
-  });
+  // app.use(jwt({
+  //   secret: '1234',
+  //   passthrough: true
+  // }));
 
-  app.use(async (ctx, next) => {
-    if (!ctx.isAuthenticated()) {
-      ctx.redirect('/auth/login');
-      return;
-    }
-    await next();
-  });
+  // app.use(async (ctx, next) => {
+  //   console.log('User', ctx.state.user);
+  //   if (ctx.state.user) {
+  //     ctx.login(ctx.state.user);
+  //   }
+  //   await next();
+  // });
+
+  // app.use(async (ctx, next) => {
+  //   if (!ctx.isAuthenticated()) {
+  //     ctx.redirect('/auth/login');
+  //     return;
+  //   }
+  //   await next();
+  // });
 
 
   // routes
   app.use(mount('/api/v1', groupsRouter.routes()));
   app.use(mount('/api/v1', usersRouter.routes()));
+  app.use(mount('/api/v1', messagesRouter.routes()));
 
 
   // socket io
@@ -72,9 +73,11 @@ const onDBReady = (err) => {
   const io = require('socket.io')(server);
 
   io.on('connection', (socket) => {
-    socket.on('disconnect', () => {});
-    socket.on('new-message', (msg) => {
-      io.emit('new-message', msg);
+    console.log('User connected')
+    socket.on('disconnect', () => {console.log('User disconnected')});
+    socket.on('chat', async (msg) => {
+      await new MessageModel(msg).save();
+      io.emit('received', msg);
     });
   });
 

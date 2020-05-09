@@ -1,5 +1,4 @@
-const Router = require('koa-router');
-const mongoose = require('mongoose');
+const Router = require('@koa/router');
 const UserModel = require('../models/user.model');
 
 

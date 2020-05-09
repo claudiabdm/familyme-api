@@ -1,4 +1,4 @@
-const Router = require('koa-router');
+const Router = require('@koa/router');
 const jsonwebtoken = require('jsonwebtoken');
 const passport = require('koa-passport');
 const UserModel = require('../models/user.model');

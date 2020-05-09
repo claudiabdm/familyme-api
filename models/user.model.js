@@ -40,6 +40,10 @@ const User = new Schema({
     type: Object,
     required: false,
     default: {lat:'', lng:''}
+  },
+  lastConnection: {
+    type: Date,
+    default: new Date(),
   }
 }, {timestamps: true});
 
