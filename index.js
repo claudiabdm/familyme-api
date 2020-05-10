@@ -8,7 +8,8 @@ const passport = require('koa-passport');
 const session = require('koa-generic-session');
 const jwt = require('koa-jwt');
 
-const mongoUri = process.env.MONGODB_PROD;
+// const mongoUri = process.env.MONGODB_PROD;
+const mongoUri = 'mongodb+srv://dbUser:PpCd3R5J09wOTYhJ@cluster0-fieon.mongodb.net/familymeapp?retryWrites=true&w=majority';
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
 const authRouter = require('./routes/auth.router');
@@ -73,11 +74,18 @@ const onDBReady = (err) => {
   const io = require('socket.io')(server);
 
   io.on('connection', (socket) => {
-    console.log('User connected')
-    socket.on('disconnect', () => {console.log('User disconnected')});
+    socket.on('join', (groupRoom) => {
+      socket.join(groupRoom, () => {
+        console.log(`User connected to room ${groupRoom}`)
+      });
+    })
     socket.on('chat', async (msg) => {
       await new MessageModel(msg).save();
-      io.emit('received', msg);
+      io.to(msg.groupId).emit('received', msg);
+      console.log(`${msg.userId} send a msg to ${msg.groupId}`);
+    });
+    socket.on('disconnect', (user) => {
+      console.log(`User disconnected`)
     });
   });
 
