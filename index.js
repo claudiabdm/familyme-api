@@ -8,8 +8,7 @@ const passport = require('koa-passport');
 const session = require('koa-generic-session');
 const jwt = require('koa-jwt');
 
-// const mongoUri = process.env.MONGODB_PROD;
-const mongoUri = 'mongodb+srv://dbUser:PpCd3R5J09wOTYhJ@cluster0-fieon.mongodb.net/familymeapp?retryWrites=true&w=majority';
+const mongoUri = process.env.MONGODB_PROD;
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
 const authRouter = require('./routes/auth.router');

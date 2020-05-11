@@ -1,5 +1,7 @@
 const Router = require('@koa/router');
 const GroupModel = require('../models/group.model');
+const UserModel = require('../models/user.model');
+const MessageModel = require('../models/message.model');
 
 
 class GroupsRouter {
@@ -75,6 +77,32 @@ class GroupsRouter {
       ctx.body = `${ctx.status}: ${err.message}`;
     }
   }
+
+  static async deleteGroup(ctx) {
+    try {
+      const user = await UserModel.findById(ctx.params.userId);
+
+      if (user.role === 'admin') {
+        const group = await GroupModel.findById(ctx.params.id);
+        await UserModel.deleteMany({familyCode: group.familyCode});
+        console.log(`Users from Group ${ctx.params.id} deleted.`)
+        await MessageModel.deleteMany({groupId: ctx.params.id});
+        console.log(`Messages in Group ${ctx.params.id} deleted.`)
+        await GroupModel.findByIdAndDelete(ctx.params.id);
+        console.log(`Group ${ctx.params.id} deleted.`)
+        ctx.body = {
+          ok: 1
+        };
+      } else {
+        ctx.throw(404, 'User is not admin');
+        return false;
+      }
+
+    } catch (err) {
+      ctx.status = err.status || 500;
+      ctx.body = `${ctx.status}: ${err.message}`;
+    }
+  }
 }
 
 
@@ -87,5 +115,6 @@ router.get('/:id', GroupsRouter.getById);
 router.get('/search/:text', GroupsRouter.search);
 router.post('/', GroupsRouter.create);
 router.put('/:id', GroupsRouter.update);
+router.delete('/:id/:userId', GroupsRouter.deleteGroup);
 
 module.exports = router;
