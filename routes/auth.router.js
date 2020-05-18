@@ -98,8 +98,9 @@ class AuthRouter {
         ctx.throw(401, 'Incorrect password');
         return;
       }
-
-      const token = jsonwebtoken.sign(user._id, '1234');
+    
+      const {...userToObj} = user.toObject();
+      const token = jsonwebtoken.sign(userToObj.email, '1234');
       ctx.body = {
         token
       };

@@ -1,4 +1,5 @@
 const Router = require('@koa/router');
+const passport = require('koa-passport');
 const GroupModel = require('../models/group.model');
 const UserModel = require('../models/user.model');
 const MessageModel = require('../models/message.model');
