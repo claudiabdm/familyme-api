@@ -110,6 +110,10 @@ const router = new Router({
   prefix: '/groups'
 });
 
+router.use(passport.authenticate('jwt', {
+  session: false
+}));
+
 router.get('/', GroupsRouter.get);
 router.get('/:id', GroupsRouter.getById);
 router.get('/search/:text', GroupsRouter.search);

@@ -8,7 +8,10 @@ const passport = require('koa-passport');
 const session = require('koa-generic-session');
 const jwt = require('koa-jwt');
 
-const mongoUri = process.env.MONGODB_PROD;
+// const secret = process.env.JWT_SECRET;
+const secret = '1234';
+// const mongoUri = process.env.MONGODB_PROD;
+const mongoUri = 'mongodb+srv://dbUser:PpCd3R5J09wOTYhJ@cluster0-fieon.mongodb.net/familymeapp?retryWrites=true&w=majority';
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
 const authRouter = require('./routes/auth.router');
@@ -28,39 +31,26 @@ const onDBReady = (err) => {
   app.use(cors());
   validate(app);
 
-  app.keys = ['1234'];
-  app.use(session(app));
-
-
   //  auth
-  // require('./services/auth.service');
-  // app.use(passport.initialize());
-  // app.use(passport.session());
+  require('./services/auth.service');
+  app.use(passport.initialize());
+  app.use(authRouter.routes());
 
+  app.use(jwt({
+    secret: '1234',
+    passthrough: true
+  }));
 
-  // app.use(authRouter.routes());
-
-  // app.use(jwt({
-  //   secret: '1234',
-  //   passthrough: true
-  // }));
-
-  // app.use(async (ctx, next) => {
-  //   console.log('User', ctx.state.user);
-  //   if (ctx.state.user) {
-  //     ctx.login(ctx.state.user);
-  //   }
-  //   await next();
-  // });
-
-  // app.use(async (ctx, next) => {
-  //   if (!ctx.isAuthenticated()) {
-  //     ctx.redirect('/auth/login');
-  //     return;
-  //   }
-  //   await next();
-  // });
-
+  app.use(async (ctx, next) => {
+    if (!ctx.isAuthenticated()) {
+      ctx.body = {
+        msg: 'User is not authorizated'
+      }
+      ctx.status = 401;
+      return;
+    }
+    await next();
+  });
 
   // routes
   app.use(mount('/api/v1', groupsRouter.routes()));

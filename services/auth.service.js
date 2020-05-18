@@ -1,54 +1,55 @@
 const passport = require('koa-passport');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/user.model');
-const BasicStrategy = require('passport-http').BasicStrategy;
 const LocalStrategy = require('passport-local').Strategy;
-
-
-passport.serializeUser(async (user, done) => {
-  done(null, user._id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  const user = await UserModel.findById(id);
-  done(null, user);
-});
-
-
-
-async function registerUserBasic(username, password, done) {
-  if (username === 'admin' && password === 'admin') {
-    done(null, {
-      _id: 'basic',
-      provider: 'basic',
-      username: 'admin'
-    });
-  } else {
-    done(null, false);
-  }
-};
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 async function registerLocal(email, password, done) {
   const user = await UserModel.findOne({
-    email,
+    email
   });
-  console.log(user.name)
-  if (user) {
-    if (password === user.password) {
-      done(null, user);
-    }
-  } else {
+
+  if (!user) {
     done(null, false);
     return;
   }
-  // const hashPassword = await bcrypt.hash(password, user.salt);
+
+  const hashPassword = await bcrypt.hash(password, user.salt);
+
+  if (hashPassword !== user.password) {
+    done(null, false);
+    return;
+  }
+
+  done(null, user);
+
 }
 
+async function jwtVerification(jwt_payload, done) {
+  const currentUser = jwt_payload;
+  try {
+    const verifyUser = await UserModel.findById(currentUser._id);
 
+    if (!verifyUser) {
+      done(false, currentUser);
+      return;
+    }
 
-// registramos la estrategia
-// passport.use(new BasicStrategy(registerUserBasic));
+    done(null, currentUser);
+
+  } catch (err) {
+    done(err, false);
+  }
+
+}
+
 passport.use(new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password'
 }, registerLocal));
+
+const opts = {};
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = '1234';
+passport.use(new JwtStrategy(opts, jwtVerification));

@@ -2,6 +2,7 @@ const Router = require('@koa/router');
 const UserModel = require('../models/user.model');
 const GroupModel = require('../models/group.model');
 const MessageModel = require('../models/message.model');
+const passport = require('koa-passport');
 class UsersRouter {
   static async get(ctx) {
     try {
@@ -11,6 +12,15 @@ class UsersRouter {
       ctx.body = `${ctx.status}: ${err.message}`;
     }
   }
+
+  static async getUserData(ctx) {
+    try {
+      ctx.body = ctx.state.user;
+    } catch (err) {
+      ctx.status = err.status || 500;
+      ctx.body = `${ctx.status}: ${err.message}`;
+    }
+  } 
 
   static async getById(ctx) {
     try {
@@ -76,7 +86,7 @@ class UsersRouter {
       const users = await UserModel.find({
         familyCode: user.familyCode
       });
-      
+
       if (users.length === 1) {
         await GroupModel.findOneAndDelete({
           familyCode: user.familyCode
@@ -84,16 +94,24 @@ class UsersRouter {
         msg = `No members left in group ${user.familyCode}. Group deleted.`;
       } else {
         if (user.role === 'admin') {
-          await UserModel.updateMany({familyCode: user.familyCode}, {role: 'admin'},{multi: true});
+          await UserModel.updateMany({
+            familyCode: user.familyCode
+          }, {
+            role: 'admin'
+          }, {
+            multi: true
+          });
           msg = `All users from group ${user.familyCode} are admins now because admin was deleted.`;
         }
       };
-      
+
       await UserModel.findByIdAndDelete(ctx.params.id, async (err, res) => {
         console.log(`User ${ctx.params.id} deleted. ${msg}`);
       });
 
-      await MessageModel.deleteMany({userId: ctx.params.id}, async(err, res) => {
+      await MessageModel.deleteMany({
+        userId: ctx.params.id
+      }, async (err, res) => {
         console.log(`User ${ctx.params.id} messages deleted.`)
       });
 
@@ -114,8 +132,12 @@ const router = new Router({
   prefix: '/users'
 });
 
+router.use(passport.authenticate('jwt', {
+  session: false
+}));
+
 router.get('/', UsersRouter.get);
-router.get('/:id', UsersRouter.getById);
+router.get('/user-logged', UsersRouter.getUserData);
 router.get('/search/:text', UsersRouter.search);
 router.put('/:id', UsersRouter.update)
 router.post('/', UsersRouter.create);
