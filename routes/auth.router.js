@@ -32,6 +32,7 @@ class AuthRouter {
         name: ctx.request.body.name,
         email: ctx.request.body.email,
         familyCode: newGroup.familyCode,
+        role: 'admin',
         salt,
         password,
       });
@@ -67,6 +68,7 @@ class AuthRouter {
         name: ctx.request.body.name,
         email: ctx.request.body.email,
         familyCode: ctx.request.body.group,
+        role: '',
         salt,
         password,
       });
@@ -98,9 +100,10 @@ class AuthRouter {
         ctx.throw(401, 'Incorrect password');
         return;
       }
-    
-      const {...userToObj} = user.toObject();
-      const token = jsonwebtoken.sign(userToObj.email, '1234');
+
+      const userToObj  = user.toObject();
+
+      const token = jsonwebtoken.sign(userToObj._id.toString(), '1234');
       ctx.body = {
         token
       };
@@ -126,6 +129,7 @@ router.post(
     session: false,
   }),
   AuthRouter.login);
+
 // router.post('/login', passport.authenticate('local', {
 //   successRedirect: '/auth/success',
 //   failureRedirect: '/auth/fail'

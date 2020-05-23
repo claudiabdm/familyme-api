@@ -29,9 +29,9 @@ async function registerLocal(email, password, done) {
 async function jwtVerification(jwt_payload, done) {
   const currentUser = jwt_payload;
   try {
-    const verifyUser = await UserModel.find( {email: currentUser.email});
+    const userFound = await UserModel.findById(currentUser);
 
-    if (!verifyUser) {
+    if (!userFound) {
       done(false, currentUser);
       return;
     }

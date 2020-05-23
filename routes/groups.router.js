@@ -61,18 +61,14 @@ class GroupsRouter {
     }
   }
 
-  static async search(ctx) {
+  static async searchByFamilyCode(ctx) {
     try {
-      const user = await GroupModel.find({
-        $text: {
-          $search: `\"${ctx.params.text}\"`
-        }
-      });
-      if (!user) {
+      const group = await GroupModel.findOne({ familyCode: ctx.params.familiyCode });
+      if (!group) {
         ctx.throw(404, 'User not found');
         return false;
       }
-      ctx.body = user;
+      ctx.body = group;
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = `${ctx.status}: ${err.message}`;
@@ -117,7 +113,7 @@ router.use(passport.authenticate('jwt', {
 
 router.get('/', GroupsRouter.get);
 router.get('/:id', GroupsRouter.getById);
-router.get('/search/:text', GroupsRouter.search);
+router.get('/search/:familiyCode', GroupsRouter.searchByFamilyCode);
 router.post('/', GroupsRouter.create);
 router.put('/:id', GroupsRouter.update);
 router.delete('/:id/:userId', GroupsRouter.deleteGroup);

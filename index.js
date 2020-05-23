@@ -8,10 +8,8 @@ const passport = require('koa-passport');
 const session = require('koa-generic-session');
 const jwt = require('koa-jwt');
 
-// const secret = process.env.JWT_SECRET;
-const secret = '1234';
-// const mongoUri = process.env.MONGODB_PROD;
-const mongoUri = 'mongodb+srv://dbUser:PpCd3R5J09wOTYhJ@cluster0-fieon.mongodb.net/familymeapp?retryWrites=true&w=majority';
+const secret = process.env.JWT_SECRET;
+const mongoUri = process.env.MONGODB_PROD;
 const groupsRouter = require('./routes/groups.router');
 const usersRouter = require('./routes/users.router');
 const authRouter = require('./routes/auth.router');
@@ -37,7 +35,7 @@ const onDBReady = (err) => {
   app.use(authRouter.routes());
 
   app.use(jwt({
-    secret: '1234',
+    secret: secret,
     passthrough: true
   }));
 
@@ -73,7 +71,7 @@ const onDBReady = (err) => {
       io.to(msg.groupId).emit('received', msg);
       console.log(`${msg.userId} send a msg to ${msg.groupId}`);
     });
-    socket.on('disconnect', (user) => {
+    socket.on('disconnect', () => {
       console.log(`User disconnected`)
     });
   });

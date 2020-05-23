@@ -44,6 +44,10 @@ const User = new Schema({
   lastConnection: {
     type: Date,
     default: new Date(),
+  },
+  isShopping: {
+    type: Boolean,
+    default: false,
   }
 }, {timestamps: true});
 

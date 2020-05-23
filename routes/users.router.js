@@ -4,6 +4,7 @@ const GroupModel = require('../models/group.model');
 const MessageModel = require('../models/message.model');
 const passport = require('koa-passport');
 class UsersRouter {
+
   static async get(ctx) {
     try {
       ctx.body = await UserModel.find();
@@ -15,7 +16,8 @@ class UsersRouter {
 
   static async getUserData(ctx) {
     try {
-      ctx.body = ctx.state.user;
+      const user = await UserModel.findById(ctx.state.user).select('-password -salt -email');
+      ctx.body = user;
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = `${ctx.status}: ${err.message}`;
@@ -24,7 +26,7 @@ class UsersRouter {
 
   static async getById(ctx) {
     try {
-      const user = await UserModel.findById(ctx.params.id);
+      const user = await UserModel.findById(ctx.params.id).select('-password -salt -email');
       if (!user) {
         ctx.throw(404, 'User not found');
         return false;
@@ -39,7 +41,7 @@ class UsersRouter {
   static async create(ctx) {
     try {
       const newUser = new UserModel(ctx.request.body);
-      ctx.body = await newUser.save();
+      ctx.body = await newUser.save().select('-password -salt -email');
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = `${ctx.status}: ${err.message}`;
@@ -50,7 +52,7 @@ class UsersRouter {
     try {
       const group = await UserModel.findByIdAndUpdate(ctx.params.id, ctx.request.body, {
         new: true
-      });
+      }).select('-password -salt -email');
       if (!group) {
         ctx.throw(404, 'Group not found');
       }
@@ -61,18 +63,14 @@ class UsersRouter {
     }
   }
 
-  static async search(ctx) {
+  static async searchByFamilyCode(ctx) {
     try {
-      const user = await UserModel.find({
-        $text: {
-          $search: `\"${ctx.params.text}\"`
-        }
-      });
-      if (!user) {
+      const users = await UserModel.find({ familyCode: ctx.params.text }).select('-password -salt -email');
+      if (!users) {
         ctx.throw(404, 'User not found');
         return false;
       }
-      ctx.body = user;
+      ctx.body = users;
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = `${ctx.status}: ${err.message}`;
@@ -138,7 +136,7 @@ router.use(passport.authenticate('jwt', {
 
 router.get('/', UsersRouter.get);
 router.get('/user-logged', UsersRouter.getUserData);
-router.get('/search/:text', UsersRouter.search);
+router.get('/search/:text', UsersRouter.searchByFamilyCode);
 router.put('/:id', UsersRouter.update)
 router.post('/', UsersRouter.create);
 router.delete('/:id', UsersRouter.deleteUser);
