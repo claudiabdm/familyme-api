@@ -51,5 +51,5 @@ passport.use(new LocalStrategy({
 
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = '1234';
+opts.secretOrKey = process.env.JWT_SECRET;
 passport.use(new JwtStrategy(opts, jwtVerification));
