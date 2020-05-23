@@ -5,7 +5,6 @@ const mount = require('koa-mount');
 const cors = require('@koa/cors');
 const validate = require('koa-validate');
 const passport = require('koa-passport');
-const session = require('koa-generic-session');
 const jwt = require('koa-jwt');
 
 const secret = process.env.JWT_SECRET;
