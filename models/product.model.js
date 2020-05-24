@@ -10,6 +10,10 @@ const Product = new Schema({
     type: String,
     required: true
   },
+  addedById: {
+    type: String,
+    required: true
+  },
   done: {
     type: Boolean,
     required: true
