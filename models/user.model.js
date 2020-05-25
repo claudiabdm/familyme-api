@@ -41,6 +41,14 @@ const User = new Schema({
     required: false,
     default: {lat:'', lng:''}
   },
+  locationOn: {
+    type: Boolean,
+    default: false,
+  },
+  notificationsOn: {
+    type: Boolean,
+    default: true,
+  },
   lastConnection: {
     type: Date,
     default: new Date(),
