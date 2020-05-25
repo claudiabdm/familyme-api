@@ -43,7 +43,7 @@ const User = new Schema({
   },
   locationOn: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   notificationsOn: {
     type: Boolean,
