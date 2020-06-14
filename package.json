@@ -33,6 +33,7 @@
     "koa-validate": "^1.0.7",
     "koa-views": "^6.2.1",
     "mongoose": "^5.9.6",
+    "mongoose-geojson-schema": "^2.1.5",
     "passport-http": "^0.3.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

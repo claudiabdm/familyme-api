@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const GeoJSON = require('mongoose-geojson-schema');
 const Schema = mongoose.Schema;
 
 const EventModel = require('./event.model');
@@ -35,7 +36,15 @@ const Group = new Schema({
     type: [MessageModel.schema],
     required: false,
     default: []
-  }
+  },
+  savedPlaces: {
+    type:  mongoose.Schema.Types.FeatureCollection,
+    required: false,
+    default: {
+      type: 'FeatureCollection',
+      features: []
+    }
+  },
 },  {timestamps: true})
 
 module.exports = mongoose.model('Group', Group);
