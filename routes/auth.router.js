@@ -103,7 +103,7 @@ class AuthRouter {
 
       const userToObj  = user.toObject();
 
-      const token = jsonwebtoken.sign(userToObj._id.toString(), '1234');
+      const token = jsonwebtoken.sign(userToObj._id.toString(), process.env.JWT_SECRET);
       ctx.body = {
         token
       };
